@@ -1,0 +1,13 @@
+[package]
+name = "cpux"
+version = "0.1.1"
+authors = ["eckso"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.34"
+clap = { version = "2.33.3", features = ["yaml"] }
+fern = "0.6.0"
+log = "0.4.11"
+tabular = "0.1.4"
+thiserror = "1.0.22"

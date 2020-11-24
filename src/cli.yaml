@@ -1,0 +1,61 @@
+name: cpux
+about: View and set CPU parameters
+args:
+  - CPUS:
+      short: c
+      long: cpus
+      takes_value: true
+      value_names: ID
+      help: Target CPUs, default all, e.g. 0,1,2-5,9,12-15
+  - EPB_HINT:
+      long: epb-hint
+      takes_value: true
+      value_names: 0-15
+      help: Energy/performance bias hint (per --cpus)
+  - FREQ_EP_PREF:
+      long: freq-ep-pref
+      takes_value: true
+      value_names: PREF
+      help: Energy/performance preference (per --cpus)
+  - FREQ_GOV:
+      long: freq-gov
+      short: g
+      takes_value: true
+      value_names: GOV
+      help: Frequency governor (per --cpus)
+  - FREQ_MAX:
+      long: freq-max
+      short: x
+      takes_value: true
+      value_names: KHZ
+      help: Max frequency, e.g. 4100000, 4100mhz, 4.1ghz (per --cpus)
+  - FREQ_MIN:
+      long: freq-min
+      short: n
+      takes_value: true
+      value_names: KHZ
+      help: Min frequency, e.g. 4100000, 4100mhz, 4.1ghz (per --cpus)
+  - LOG_LEVEL:
+      short: l
+      long: log-level
+      takes_value: true
+      value_names: LEVEL
+      help: Log level, default warn
+  - ONLINE:
+      long: online
+      short: o
+      takes_value: true
+      value_names: BOOL
+      help: CPU online status, true or false (per --cpus)
+  - ONLINE_EACH:
+      long: online-each
+      takes_value: true
+      value_names: BITS
+      help: CPU online status, e.g. 10-1 ⇒ 0=on 1=off 2=skip 3=on
+  - QUIET:
+      short: q
+      long: quiet
+      help: Do not print summary
+  - WAIT:
+      index: 1
+      help: Refresh summary every WAIT seconds
