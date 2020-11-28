@@ -1,3 +1,7 @@
+# v0.1.3
+
+- Re-add bounds check on `WAIT` argument.
+
 # v0.1.2
 
 - Commnad-line interface changes:
