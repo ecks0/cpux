@@ -39,7 +39,7 @@
   - Most functions now have a variant that performs basic i/o error-handling
     on behalf of the caller. Using `cpufreq` for example:
 
-    - `fn cur_khz(cpu_id: u64) -> Result<Option<u64>>` returns `Ok(Some(false))`
+    - `fn cur_khz(cpu_id: u64) -> Result<Option<u64>>` returns `Ok(None)`
       if the corresponding sysfs file is not found, but `cpu_id` exists on the system (i.e. the
       CPU exists, but the requested feature is not available).
       

@@ -1,6 +1,6 @@
 # cpux
 
-View and set CPU parameters on Linux systems using sysfs.
+View and set CPU parameters on Linux systems.
 
 ## Examples
 
