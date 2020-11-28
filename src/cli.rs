@@ -330,6 +330,7 @@ where
   }
   let print_summary = || -> Result<()> { print!("\n{}\n", summarize(&cpu_ids, show_cpu, show_freq, show_pstate)?); Ok(()) };
   if let Some(wait) = wait {
+    let wait = if wait == 0 { 1 } else { wait };
     let interval = std::time::Duration::from_secs(wait);
     loop {
       print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
