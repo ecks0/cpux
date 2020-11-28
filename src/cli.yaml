@@ -67,4 +67,4 @@ args:
       help: Prints Intel pstate driver summary, default if detected
   - WAIT:
       index: 1
-      help: Refresh summary every WAIT seconds, default if detected
+      help: Refresh summary every WAIT seconds
