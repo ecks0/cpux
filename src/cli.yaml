@@ -7,16 +7,18 @@ args:
       takes_value: true
       value_names: ID
       help: Target CPUs, default all, e.g. 0,1,2-5,9,12-15
-  - EPB_HINT:
-      long: epb-hint
+  - CPU_ON:
+      long: cpu-on
+      short: o
       takes_value: true
-      value_names: 0-15
-      help: Energy/performance bias hint (per --cpus)
-  - FREQ_EP_PREF:
-      long: freq-ep-pref
+      value_names: BOOL
+      help: CPU online status, true or false (per --cpus)
+  - CPU_ON_EACH:
+      long: cpu-on-each
+      short: O
       takes_value: true
-      value_names: PREF
-      help: Energy/performance preference (per --cpus)
+      value_names: BITS
+      help: CPU online status, e.g. 10-1 ⇒ 0=on 1=off 2=skip 3=on
   - FREQ_GOV:
       long: freq-gov
       short: g
@@ -41,21 +43,33 @@ args:
       takes_value: true
       value_names: LEVEL
       help: Log level, default warn
-  - ONLINE:
-      long: online
-      short: o
+  - PSTATE_EPP:
+      long: pstate-epp
       takes_value: true
-      value_names: BOOL
-      help: CPU online status, true or false (per --cpus)
-  - ONLINE_EACH:
-      long: online-each
+      value_names: PREF
+      help: Intel pstate energy/performance preference (per --cpus)
+  - PSTATE_EPB:
+      long: pstate-epb
       takes_value: true
-      value_names: BITS
-      help: CPU online status, e.g. 10-1 ⇒ 0=on 1=off 2=skip 3=on
+      value_names: 0-15
+      help: Intel pstate energy/performance bias hint (per --cpus)
   - QUIET:
-      short: q
       long: quiet
-      help: Do not print summary
+      short: q
+      help: Do not print the default summary
+  - SHOW_ALL:
+      short: a
+      long: show-all
+      help: Show all summaries
+  - SHOW_CPU:
+      long: show-cpu
+      help: Show CPU online and frequency summary, default
+  - SHOW_FREQ:
+      long: show-freq
+      help: Show CPU frequency governor summary, defualt
+  - SHOW_PSTATE:
+      long: show-pstate
+      help: Show Intel CPU pstate summary
   - WAIT:
       index: 1
       help: Refresh summary every WAIT seconds

@@ -1,12 +1,12 @@
 use {
-  log::trace,
+  log::{debug, trace},
   std::path::{Path, PathBuf}
 };
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
 
-  #[error("{0}: {1}")]
+  #[error("{0}: {0}")]
   Io(PathBuf, std::io::Error),
 
   #[error("Not found: {0}: {1}")]
@@ -20,8 +20,6 @@ pub enum Error {
 
   #[error("{0}: value could not be parsed as u64: `{1}")]
   ParseU64(String, String),
-
-  //#[error(transparent)] StdIo(#[from] std::io::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -29,12 +27,45 @@ pub type Result<T> = std::result::Result<T, Error>;
 fn handle_io_error<T>(path: &Path, result: std::io::Result<T>) -> Result<T> {
   match result {
     Ok(val) => Ok(val),
-    Err(err) =>
+    Err(err) => {
       match err.kind() {
         std::io::ErrorKind::NotFound => Err(Error::IoNotFound(path.to_path_buf(), err)),
         std::io::ErrorKind::PermissionDenied => Err(Error::IoNoPermission(path.to_path_buf(), err)),
-        _ => Err(Error::Io(path.to_path_buf(), err)),
+        std::io::ErrorKind::Other => 
+          match err.raw_os_error() {
+            Some(6) => Err(Error::IoNotFound(path.to_path_buf(), err)), // "No such device or address",
+            _ => { 
+              trace!("Unhandled io error: {}", std::io::Error::last_os_error());
+              Err(Error::Io(path.to_path_buf(), err))
+            },
+          },
+        _ => { 
+          trace!("Unhandled io error: {}", std::io::Error::last_os_error());
+          Err(Error::Io(path.to_path_buf(), err))
+        },
       }
+    },
+  }
+}
+
+pub(crate) fn allow_missing_files<T>(result: Result<T>) -> Result<Option<T>> {
+  match result {
+    Ok(val) => Ok(Some(val)),
+    Err(err) =>
+      match err {
+        Error::IoNotFound(path, _) => {
+          debug!("pseudofs NotFound {}", path.display());
+          Ok(None)
+        },
+        Error::IoNoPermission(ref path, _) => {
+          if path.is_file() || path.is_dir() { Err(err) }
+          else {
+            debug!("pseudofs NoPermission {}", path.display());
+            Ok(None)
+          }
+        }
+        _ => Err(err),
+      },
   }
 }
 
