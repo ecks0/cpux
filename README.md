@@ -44,7 +44,7 @@ cpux -O '11 00 -- 11 00'
 
 ```
 $ cpux --help
-cpux 0.1.2
+cpux 0.1.3
 View and set CPU parameters
 
 USAGE:
