@@ -40,7 +40,9 @@
     on behalf of the caller. Using `cpufreq` for example:
 
     - `fn cur_khz(cpu_id: u64) -> Result<Option<u64>>` returns `Ok(Some(false))`
-      if the corresponding sysfs file is not found (i.e. the requested feature is not available).
+      if the corresponding sysfs file is not found, but `cpu_id` exists on the system (i.e. the
+      CPU exists, but the requested feature is not available).
+      
 
     - `fn try_cur_khz(cpu_id: u64) -> Result<u64>` returns `Err(pseudofs::Error::IoNotFound(...))`
       if the corresponding sysfs file is not found.

@@ -26,7 +26,7 @@ cpux --cpus 5,6,9-11 --cpu-on true --pstate-epb 3
 cpux -c 5,6,9-11 -o true --pstate-epb 3
 #
 # * target cpus 5, 6, 9, 10, 11
-# * cpu online = false
+# * cpu online = true
 # * energy/performance bias hint = 3
 
 cpux --cpu-on-each 1100--1100
