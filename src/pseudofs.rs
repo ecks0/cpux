@@ -33,8 +33,8 @@ fn handle_io_error<T>(path: &Path, result: std::io::Result<T>) -> Result<T> {
         std::io::ErrorKind::PermissionDenied => Err(Error::IoNoPermission(path.to_path_buf(), err)),
         std::io::ErrorKind::Other => 
           match err.raw_os_error() {
-            Some(6)  |  // "No such device or address",
-            Some(16)    // "Resource busy"
+            Some(6)  |  // ENXIO "No such device or address",
+            Some(16)    // EBUSY "Resource busy"
               => Err(Error::IoNotFound(path.to_path_buf(), err)),
             _ => { 
               trace!("Unhandled io error: {:?}", std::io::Error::last_os_error());
