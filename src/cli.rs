@@ -290,17 +290,16 @@ where
   let pstate_epb = parse_opt::<u64>("--pstate-epb", "u64", m.value_of("PSTATE_EPB"))?;
   let pstate_epp = m.value_of("PSTATE_EPP");
   let quiet = m.is_present("QUIET");
-  let show_all = m.is_present("SHOW_ALL");
-  let show_cpu = if show_all { true } else { m.is_present("SHOW_CPU") };
-  let show_freq = if show_all { true } else { m.is_present("SHOW_FREQ") };
-  let show_pstate = if show_all { true } else { m.is_present("SHOW_PSTATE") };
+  let mut show_cpu = m.is_present("SHOW_CPU");
+  let mut show_freq = m.is_present("SHOW_FREQ");
+  let mut show_pstate = m.is_present("SHOW_PSTATE");
   let wait = parse_opt::<u64>("WAIT", "u64", m.value_of("WAIT"))?;
   let cpu_ids = cpu::ids()?;
-  let has_work_flags_cpu = cpu_on.is_some() || cpu_on_each.is_some();
-  let has_work_flags_freq = freq_gov.is_some() || freq_max.is_some() || freq_min.is_some();
-  let has_work_flags_pstate = pstate_epb.is_some() || pstate_epp.is_some();
-  let has_work_flags = has_work_flags_cpu || has_work_flags_freq || has_work_flags_pstate;
-  if has_work_flags {
+  let has_work_args_cpu = cpu_on.is_some() || cpu_on_each.is_some();
+  let has_work_args_freq = freq_gov.is_some() || freq_max.is_some() || freq_min.is_some();
+  let has_work_args_pstate = pstate_epb.is_some() || pstate_epp.is_some();
+  let has_work_args = has_work_args_cpu || has_work_args_freq || has_work_args_pstate;
+  if has_work_args {
     let cpus =
       match parse_indices_opt("-c/--cpus", m.value_of("CPUS"))? {
         Some(val) => val,
@@ -323,25 +322,23 @@ where
       }
     }
   }
-  let has_show_flags = show_cpu || show_freq || show_pstate;
-  let print_summary =
-    || -> Result<()> {
-      let summary =
-        if has_show_flags {  summarize(&cpu_ids, show_cpu, show_freq, show_pstate)? }
-        else { summarize(&cpu_ids, true, true, has_work_flags_pstate)? };
-      print!("\n{}\n", summary);
-      Ok(())
-    };
+  let has_show_args = show_cpu || show_freq || show_pstate;
+  if ! has_show_args {
+    show_cpu = true;
+    show_freq = cpufreq::available();
+    show_pstate = pstate::available();
+  }
+  let print_summary = || -> Result<()> { print!("\n{}\n", summarize(&cpu_ids, show_cpu, show_freq, show_pstate)?); Ok(()) };
   if let Some(wait) = wait {
-    let wait = if wait == 0 { 1 } else { wait };
     let interval = std::time::Duration::from_secs(wait);
     loop {
       print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
       print_summary()?;
       std::thread::sleep(interval);
-    };
-  } else {
-    if has_show_flags || ! quiet { print_summary()?; }
+    }
+  }
+  else if has_show_args || ! quiet {
+    print_summary()?;
   }
   Ok(())
 }

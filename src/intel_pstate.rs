@@ -34,6 +34,10 @@ fn allow_missing_if_cpu_exists<T>(cpu_id: u64, result: Result<T>) -> Result<Opti
   }
 }
 
+pub fn available() -> bool {
+  sysfs::intel_pstate_status().is_file()
+}
+
 pub fn try_epb(cpu_id: u64) -> Result<u64> {
   let res = read_u64(&sysfs::intel_pstate_epb(cpu_id))?;
   debug!("intel_pstate get_epb cpu{} {}", cpu_id, res);

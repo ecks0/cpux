@@ -33,6 +33,10 @@ fn allow_missing_if_cpu_exists<T>(cpu_id: u64, result: Result<T>) -> Result<Opti
   }
 }
 
+pub fn available() -> bool {
+  sysfs::cpu_cpufreq().is_dir()
+}
+
 pub fn try_governor(cpu_id: u64) -> Result<String> {
   let res = read_str(&sysfs::cpufreq_governor(cpu_id))?;
   debug!(r#"cpufreq get_governor cpu{} "{}""#, cpu_id, res);

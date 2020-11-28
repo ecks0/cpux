@@ -38,7 +38,6 @@ args:
       value_names: KHZ
       help: Min frequency, e.g. 4100000, 4100mhz, 4.1ghz (per --cpus)
   - LOG_LEVEL:
-      short: l
       long: log-level
       takes_value: true
       value_names: LEVEL
@@ -57,19 +56,15 @@ args:
       long: quiet
       short: q
       help: Do not print the default summary
-  - SHOW_ALL:
-      short: a
-      long: show-all
-      help: Show all summaries
   - SHOW_CPU:
-      long: show-cpu
-      help: Show CPU online and frequency summary, default
+      long: cpu
+      help: Prints CPU online and frequency summary, default
   - SHOW_FREQ:
-      long: show-freq
-      help: Show CPU frequency governor summary, defualt
+      long: freq
+      help: Prints CPU frequency governor summary, default if detected
   - SHOW_PSTATE:
-      long: show-pstate
-      help: Show Intel CPU pstate summary
+      long: pstate
+      help: Prints Intel pstate driver summary, default if detected
   - WAIT:
       index: 1
-      help: Refresh summary every WAIT seconds
+      help: Refresh summary every WAIT seconds, default if detected

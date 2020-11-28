@@ -8,6 +8,10 @@ pub fn cpu_present() -> PathBuf {
   PathBuf::from("/sys/devices/system/cpu/present")
 }
 
+pub fn cpu_cpufreq() -> PathBuf {
+  PathBuf::from("/sys/devices/system/cpu/cpufreq")
+}
+
 pub fn cpufreq(cpu_id: u64) -> PathBuf {
   let mut p = cpu(cpu_id);
   p.push("cpufreq");
