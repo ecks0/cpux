@@ -70,7 +70,7 @@ OPTIONS:
         --pstate-epp <PREF>     Intel pstate energy/performance preference (per --cpus)
 
 ARGS:
-    <WAIT>    Refresh summary every WAIT seconds, default if detected
+    <WAIT>    Refresh summary every WAIT seconds
 ```
 
 ## Output
