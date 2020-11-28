@@ -6,7 +6,7 @@ use {
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
 
-  #[error("{0}: {0}")]
+  #[error("{0}: {1}")]
   Io(PathBuf, std::io::Error),
 
   #[error("Not found: {0}: {1}")]
@@ -33,14 +33,16 @@ fn handle_io_error<T>(path: &Path, result: std::io::Result<T>) -> Result<T> {
         std::io::ErrorKind::PermissionDenied => Err(Error::IoNoPermission(path.to_path_buf(), err)),
         std::io::ErrorKind::Other => 
           match err.raw_os_error() {
-            Some(6) => Err(Error::IoNotFound(path.to_path_buf(), err)), // "No such device or address",
+            Some(6)  |  // "No such device or address",
+            Some(16)    // "Resource busy"
+              => Err(Error::IoNotFound(path.to_path_buf(), err)),
             _ => { 
-              trace!("Unhandled io error: {}", std::io::Error::last_os_error());
+              trace!("Unhandled io error: {:?}", std::io::Error::last_os_error());
               Err(Error::Io(path.to_path_buf(), err))
             },
           },
         _ => { 
-          trace!("Unhandled io error: {}", std::io::Error::last_os_error());
+          trace!("Unhandled io error: {:?}", std::io::Error::last_os_error());
           Err(Error::Io(path.to_path_buf(), err))
         },
       }
