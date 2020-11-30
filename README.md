@@ -28,7 +28,7 @@ View and set CPU and related parameters on Linux.
 
 ```
 $ cpux --help
-cpux 0.1.4
+cpux 0.1.5
 View and set CPU and related parameters.
 
 USAGE:
@@ -140,22 +140,22 @@ $ cpux
   
   CPU     Online  Cur         Min         Max         Min limit   Max limit
   ------- ------- ----------- ----------- ----------- ----------- -----------
-  cpu0    true    900.0 KHz   900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu1    true    900.1 KHz   900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu2    false   4.0 MHz     900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu3    false   3.9 MHz     900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu4    true    900.1 KHz   900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu5    true    900.0 KHz   900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu6    false   4.0 MHz     900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu7    false   4.0 MHz     900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu8    true    900.1 KHz   900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu9    true    900.2 KHz   900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu10   false   3.7 MHz     900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
-  cpu11   false   4.0 MHz     900.0 KHz   4.1 MHz     800.0 KHz   4.1 MHz
+  cpu0    true    1.1 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu1    true    900.1 MHz   900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu2    false   3.9 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu3    false   4.0 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu4    true    900.1 MHz   900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu5    true    900.2 MHz   900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu6    false   3.9 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu7    false   4.0 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu8    true    900.1 MHz   900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu9    true    900.0 MHz   900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu10   false   3.9 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
+  cpu11   false   4.0 GHz     900.0 MHz   4.0 GHz     800.0 MHz   4.1 GHz
   
-  Card   Driver  Actual   Req'd    Min      Max      Boost    Min limit Max limit
-  ------ ------- -------- -------- -------- -------- -------- --------- ---------
-  card0  i915    350 Hz   600 Hz   600 Hz   900 Hz   1.1 KHz  350 Hz    1.1 KHz
+  Card   Driver  Actual    Req'd     Min       Max       Boost    Min limit Max limit
+  ------ ------- --------  --------  --------  --------  -------- --------- ---------
+  card0  i915    350.0 KHz 600.0 KHz 350.0 KHz 900.0 KHz 1.1 MHz  350.0 KHz 1.1 MHz
 
 ```
 

@@ -1,3 +1,9 @@
+# v0.1.5
+
+- Command-line interface changes: 
+
+  - Fix missing multiplier in frequency display calculations.
+  
 # v0.1.4
 
 - Command-line interface changes:

@@ -2,13 +2,7 @@ use {
   crate::{
     cpu,
     pseudofs,
-    pseudofs::{
-      read_str,
-      read_str_list,
-      read_u64,
-      write_str,
-      write_u64,
-    },
+    pseudofs::{Read, Write},
     sysfs,
   },
   log::{debug, info},
@@ -25,7 +19,7 @@ fn allow_missing_if_cpu_exists<T>(cpu_id: u64, result: Result<T>) -> Result<Opti
   match result {
     Ok(val) => Ok(Some(val)),
     Err(Error::CpuxPseudofs(err)) => {
-      if let pseudofs::Error::IoNotFound(_, _) = err {
+      if let pseudofs::Error::NotFound(_, _) = err {
         if ! cpu::exists(cpu_id) { return Err(Error::CpuxPseudofs(err)); }
       }
       Ok(pseudofs::allow_missing_files(Err(err))? )
@@ -38,7 +32,7 @@ pub fn available() -> bool {
 }
 
 pub fn try_governor(cpu_id: u64) -> Result<String> {
-  let res = read_str(&sysfs::cpufreq_governor(cpu_id))?;
+  let res = String::read(&sysfs::cpufreq_governor(cpu_id))?;
   debug!(r#"cpufreq get_governor cpu{} "{}""#, cpu_id, res);
   Ok(res)
 }
@@ -49,7 +43,7 @@ pub fn governor(cpu_id: u64) -> Result<Option<String>> {
 
 pub fn try_set_governor(cpu_id: u64, val: &str) -> Result<()> {
   info!(r#"cpufreq set_governor cpu{} "{}""#, cpu_id, val);
-  write_str(&sysfs::cpufreq_governor(cpu_id), val)?;
+  val.write(&sysfs::cpufreq_governor(cpu_id))?;
   Ok(())
 }
 
@@ -58,7 +52,7 @@ pub fn set_governor(cpu_id: u64, val: &str) -> Result<Option<()>> {
 }
 
 pub fn try_governors(cpu_id: u64) -> Result<Vec<String>> {
-  let res = read_str_list(&sysfs::cpufreq_governors(cpu_id))?;
+  let res = Vec::read(&sysfs::cpufreq_governors(cpu_id))?;
   debug!(r#"cpufreq get_governors cpu{} "{}""#, cpu_id, res.join(","));
   Ok(res)
 }
@@ -68,7 +62,7 @@ pub fn governors(cpu_id: u64) -> Result<Option<Vec<String>>> {
 }
 
 pub fn try_cur_khz(cpu_id: u64) -> Result<u64> {
-  let res = read_u64(&sysfs::cpufreq_cur_khz(cpu_id))?;
+  let res = u64::read(&sysfs::cpufreq_cur_khz(cpu_id))?;
   debug!("cpufreq get_cur_khz cpu{} {}", cpu_id, res);
   Ok(res)
 }
@@ -78,7 +72,7 @@ pub fn cur_khz(cpu_id: u64) -> Result<Option<u64>> {
 }
 
 pub fn try_max_khz(cpu_id: u64) -> Result<u64> {
-  let res = read_u64(&sysfs::cpufreq_max_khz(cpu_id))?;
+  let res = u64::read(&sysfs::cpufreq_max_khz(cpu_id))?;
   debug!("cpufreq get_max_khz cpu{} {}", cpu_id, res);
   Ok(res)
 }
@@ -88,7 +82,7 @@ pub fn max_khz(cpu_id: u64) -> Result<Option<u64>> {
 }
 
 pub fn try_max_khz_limit(cpu_id: u64) -> Result<u64> {
-  let res = read_u64(&sysfs::cpufreq_max_khz_limit(cpu_id))?;
+  let res = u64::read(&sysfs::cpufreq_max_khz_limit(cpu_id))?;
   debug!("cpufreq get_max_khz_limit cpu{} {}", cpu_id, res);
   Ok(res)
 }
@@ -99,7 +93,7 @@ pub fn max_khz_limit(cpu_id: u64) -> Result<Option<u64>> {
 
 pub fn try_set_max_khz(cpu_id: u64, val: u64) -> Result<()> {
   info!("cpufreq set_max_khz cpu{} {}", cpu_id, val);
-  write_u64(&sysfs::cpufreq_max_khz(cpu_id), val)?;
+  val.write(&sysfs::cpufreq_max_khz(cpu_id))?;
   Ok(())
 }
 
@@ -108,7 +102,7 @@ pub fn set_max_khz(cpu_id: u64, val: u64) -> Result<Option<()>> {
 }
 
 pub fn try_min_khz(cpu_id: u64) -> Result<u64> {
-  let res = read_u64(&sysfs::cpufreq_min_khz(cpu_id))?;
+  let res = u64::read(&sysfs::cpufreq_min_khz(cpu_id))?;
   debug!("cpufreq get_min_khz cpu{} {}", cpu_id, res);
   Ok(res)
 }
@@ -118,7 +112,7 @@ pub fn min_khz(cpu_id: u64) -> Result<Option<u64>> {
 }
 
 pub fn try_min_khz_limit(cpu_id: u64) -> Result<u64> {
-  let res = read_u64(&sysfs::cpufreq_min_khz_limit(cpu_id))?;
+  let res = u64::read(&sysfs::cpufreq_min_khz_limit(cpu_id))?;
   debug!("cpufreq get_min_khz_limit cpu{} {}", cpu_id, res);
   Ok(res)
 }
@@ -129,7 +123,7 @@ pub fn min_khz_limit(cpu_id: u64) -> Result<Option<u64>> {
 
 pub fn try_set_min_khz(cpu_id: u64, val: u64) -> Result<()> {
   info!("cpufreq set_min_khz cpu{} {}", cpu_id, val);
-  write_u64(&sysfs::cpufreq_min_khz(cpu_id), val)?;
+  val.write(&sysfs::cpufreq_min_khz(cpu_id))?;
   Ok(())
 }
 

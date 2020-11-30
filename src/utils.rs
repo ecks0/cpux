@@ -24,7 +24,7 @@ pub enum HertzUnit {
 
 impl HertzUnit {
 
-  pub fn value(&self) -> u64 { self.clone() as u64 }
+  pub fn multiple(&self) -> u64 { self.clone() as u64 }
 }
 
 #[derive(Clone, Debug)]
@@ -40,7 +40,7 @@ impl Hertz {
 
   pub fn value(&self, unit: HertzUnit) -> f64 {
     if let HertzUnit::Hz = unit { self.0 as f64 }
-    else { self.0 as f64 / unit.value() as f64 }
+    else { self.0 as f64 / unit.multiple() as f64 }
   }
 }
 
@@ -49,23 +49,18 @@ impl std::str::FromStr for Hertz {
 
   fn from_str(s: &str) -> Result<Self> {
     let unit =
-      if s.len() > 3 {
-        let label = &(&s[s.len()-3..].to_lowercase())[..];
-        match label {
-          "khz" => HertzUnit::Khz,
-          "mhz" => HertzUnit::Mhz,
-          "ghz" => HertzUnit::Ghz,
-          "thz" => HertzUnit::Thz,
-          _ => HertzUnit::Hz,
-        }
-      } else {
-        HertzUnit::Hz
+      match &(&s[s.len()-3..].to_lowercase())[..] {
+        "khz" => HertzUnit::Khz,
+        "mhz" => HertzUnit::Mhz,
+        "ghz" => HertzUnit::Ghz,
+        "thz" => HertzUnit::Thz,
+        _ => HertzUnit::Hz,
       };
     if let HertzUnit::Hz = unit {
       Ok(Self(s.parse::<u64>().map_err(|e| Error::ParseHertz(s.to_string()))?))
     } else {
       let val = &s[..s.len()-3].parse::<f64>().map_err(|e| Error::ParseHertz(s.to_string()))?;
-      Ok(Self((val * unit.value() as f64) as u64))
+      Ok(Self((val * unit.multiple() as f64) as u64))
     }
   }
 }
@@ -73,16 +68,16 @@ impl std::str::FromStr for Hertz {
 impl std::string::ToString for Hertz {
 
   fn to_string(&self) -> String { 
-    if self.0 <= HertzUnit::Khz as u64 {
+    if self.0 < HertzUnit::Khz as u64 {
       format!("{} Hz", self.0)
     }
-    else if self.0 <= HertzUnit::Mhz as u64 {
+    else if self.0 < HertzUnit::Mhz as u64 {
       format!("{:.1} KHz", self.value(HertzUnit::Khz))
     }
-    else if self.0 <= HertzUnit::Ghz as u64 {
+    else if self.0 < HertzUnit::Ghz as u64 {
       format!("{:.1} MHz", self.value(HertzUnit::Mhz))
     }
-    else if self.0 <= HertzUnit::Thz as u64 {
+    else if self.0 < HertzUnit::Thz as u64 {
       format!("{:.1} GHz", self.value(HertzUnit::Ghz))
     }
     else {
@@ -96,17 +91,15 @@ pub struct Indices(Vec<u64>);
 
 impl Indices {
 
-  pub fn from_vec(mut o: Vec<u64>) -> Self {
-    o.sort();
-    o.dedup();
-    Self(o)
-  }
+  pub fn from_vec(o: Vec<u64>) -> Self { Self(o) }
+
+  pub fn dedup(&mut self) { self.0.dedup(); }
+
+  pub fn iter(&self) -> IndicesIter { IndicesIter(Box::new(self.0.iter())) }
+
+  pub fn sort(&mut self) { self.0.sort(); }
 
   pub fn to_vec(self) -> Vec<u64> { self.0 }
-
-  pub fn iter(&self) -> IndicesIter {
-    IndicesIter(Box::new(self.0.iter()))
-  }
 }
 
 pub struct IndicesIter<'a>(Box<dyn Iterator<Item=&'a u64> + 'a>);
@@ -121,7 +114,6 @@ impl<'a> Iterator for IndicesIter<'a> {
 
 impl IntoIterator for Indices {
   type Item = u64;
-
   type IntoIter = std::vec::IntoIter<Self::Item>;
 
   fn into_iter(self) -> Self::IntoIter {
@@ -182,13 +174,12 @@ impl<'a> Iterator for TogglesIter<'a> {
   }
 }
 
-impl<'a> IntoIterator for &'a Toggles {
-  type Item = &'a Option<bool>;
-
-  type IntoIter = TogglesIter<'a>;
+impl IntoIterator for Toggles {
+  type Item = Option<bool>;
+  type IntoIter = std::vec::IntoIter<Self::Item>;
 
   fn into_iter(self) -> Self::IntoIter {
-    self.iter()
+    self.0.into_iter()
   }
 }
 
