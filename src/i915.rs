@@ -4,6 +4,7 @@ use {
     pseudofs,
     pseudofs::{Read, Write},
     sysfs,
+    units::{Hertz, HertzUnit},
   },
   log::{debug, info},
 };
@@ -43,113 +44,115 @@ pub fn cards() -> Result<Option<Vec<u64>>> {
   allow_missing_files(try_cards()) // FIXME
 }
 
-pub fn try_actual_mhz(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_act_mhz(card_id))?;
-  debug!("i915 get_actual_mhz card{} {}", card_id, res);
-  Ok(res)
+pub fn try_actual(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_act_mhz(card_id))?;
+  debug!("i915 get_actual_mhz card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn actual_mhz(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_actual_mhz(card_id))?)
+pub fn actual(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_actual(card_id))?)
 }
 
-pub fn try_boost_mhz(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_boost_mhz(card_id))?;
-  debug!("i915 get_boost_mhz card{} {}", card_id, res);
-  Ok(res)
+pub fn try_boost(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_boost_mhz(card_id))?;
+  debug!("i915 get_boost_mhz card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn boost_mhz(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_boost_mhz(card_id))?)
+pub fn boost(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_boost(card_id))?)
 }
 
-pub fn try_set_boost_mhz(card_id: u64, val: u64) -> Result<()> {
-  info!("i915 set_boost_mhz card{} {}", card_id, val);
-  val.write(&sysfs::i915_boost_mhz(card_id))?;
+pub fn try_set_boost<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<()> {
+  let mhz = val.as_ref().mhz() as u64;
+  info!("i915 set_boost_mhz card{} {}", card_id, mhz);
+  mhz.write(&sysfs::i915_boost_mhz(card_id))?;
   Ok(())
 }
 
-pub fn set_boost_mhz(card_id: u64, val: u64) -> Result<Option<()>> {
-  Ok(allow_missing_files(try_set_boost_mhz(card_id, val))?)
+pub fn set_boost<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<Option<()>> {
+  Ok(allow_missing_files(try_set_boost(card_id, val))?)
 }
 
-pub fn try_max_mhz(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_max_mhz(card_id))?;
-  debug!("i915 get_max_mhz card{} {}", card_id, res);
-  Ok(res)
+pub fn try_max(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_max_mhz(card_id))?;
+  debug!("i915 get_max_mhz card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn max_mhz(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_max_mhz(card_id))?)
+pub fn max(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_max(card_id))?)
 }
 
-pub fn try_max_mhz_limit(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_rp0_mhz(card_id))?;
-  debug!("i915 get_max_mhz_limit card{} {}", card_id, res);
-  Ok(res)
+pub fn try_max_limit(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_rp0_mhz(card_id))?;
+  debug!("i915 get_max_mhz_limit card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn max_mhz_limit(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_max_mhz_limit(card_id))?)
+pub fn max_limit(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_max_limit(card_id))?)
 }
 
-pub fn try_set_max_mhz(card_id: u64, val: u64) -> Result<()> {
-  info!("i915 set_max_mhz card{} {}", card_id, val);
-  val.write(&sysfs::i915_max_mhz(card_id))?;
+pub fn try_set_max<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<()> {
+  let mhz = val.as_ref().mhz() as u64;
+  info!("i915 set_max_mhz card{} {}", card_id, mhz);
+  mhz.write(&sysfs::i915_max_mhz(card_id))?;
   Ok(())
 }
 
-pub fn set_max_mhz(card_id: u64, val: u64) -> Result<Option<()>> {
-  Ok(allow_missing_files(try_set_max_mhz(card_id, val))?)
+pub fn set_max<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<Option<()>> {
+  Ok(allow_missing_files(try_set_max(card_id, val))?)
 }
 
-pub fn try_min_mhz(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_min_mhz(card_id))?;
-  debug!("i915 get_min_mhz card{} {}", card_id, res);
-  Ok(res)
+pub fn try_min(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_min_mhz(card_id))?;
+  debug!("i915 get_min_mhz card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn min_mhz(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_min_mhz(card_id))?)
+pub fn min(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_min(card_id))?)
 }
 
-pub fn try_min_mhz_limit(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_rpn_mhz(card_id))?;
-  debug!("i915 get_min_mhz_limit card{} {}", card_id, res);
-  Ok(res)
+pub fn try_min_limit(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_rpn_mhz(card_id))?;
+  debug!("i915 get_min_mhz_limit card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn min_mhz_limit(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_min_mhz_limit(card_id))?)
+pub fn min_limit(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_min_limit(card_id))?)
 }
 
-pub fn try_set_min_mhz(card_id: u64, val: u64) -> Result<()> {
-  info!("i915 set_min_mhz card{} {}", card_id, val);
-  val.write(&sysfs::i915_min_mhz(card_id))?;
+pub fn try_set_min<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<()> {
+  let mhz = val.as_ref().mhz() as u64;
+  info!("i915 set_min_mhz card{} {}", card_id, mhz);
+  mhz.write(&sysfs::i915_min_mhz(card_id))?;
   Ok(())
 }
 
-pub fn set_min_mhz(card_id: u64, val: u64) -> Result<Option<()>> {
-  Ok(allow_missing_files(try_set_min_mhz(card_id, val))?)
+pub fn set_min<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<Option<()>> {
+  Ok(allow_missing_files(try_set_min(card_id, val))?)
 }
 
-pub fn try_requested_mhz(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_cur_mhz(card_id))?;
-  debug!("i915 get_requested_mhz card{} {}", card_id, res);
-  Ok(res)
+pub fn try_requested(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_cur_mhz(card_id))?;
+  debug!("i915 get_requested_mhz card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn requested_mhz(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_requested_mhz(card_id))?)
+pub fn requested(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_requested(card_id))?)
 }
 
-pub fn try_optimum_mhz_limit(card_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::i915_rp1_mhz(card_id))?;
-  debug!("i915 get_optimum_mhz_limit card{} {}", card_id, res);
-  Ok(res)
+pub fn try_optimum_limit(card_id: u64) -> Result<Hertz> {
+  let mhz = u64::read(&sysfs::i915_rp1_mhz(card_id))?;
+  debug!("i915 get_optimum_mhz_limit card{} {}", card_id, mhz);
+  Ok((mhz * HertzUnit::Mhz.multiple()).into())
 }
 
-pub fn optimum_mhz_limit(card_id: u64) -> Result<Option<u64>> {
-  Ok(allow_missing_files(try_optimum_mhz_limit(card_id))?)
+pub fn optimum_limit(card_id: u64) -> Result<Option<Hertz>> {
+  Ok(allow_missing_files(try_optimum_limit(card_id))?)
 }
-

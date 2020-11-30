@@ -4,6 +4,7 @@ use {
     pseudofs,
     pseudofs::{Read, Write},
     sysfs,
+    units::{Hertz, HertzUnit}
   },
   log::{debug, info},
 };
@@ -61,72 +62,74 @@ pub fn governors(cpu_id: u64) -> Result<Option<Vec<String>>> {
   allow_missing_if_cpu_exists(cpu_id, try_governors(cpu_id))
 }
 
-pub fn try_cur_khz(cpu_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::cpufreq_cur_khz(cpu_id))?;
-  debug!("cpufreq get_cur_khz cpu{} {}", cpu_id, res);
-  Ok(res)
+pub fn try_cur(cpu_id: u64) -> Result<Hertz> {
+  let khz = u64::read(&sysfs::cpufreq_cur_khz(cpu_id))?;
+  debug!("cpufreq get_cur_khz cpu{} {}", cpu_id, khz);
+  Ok((khz * HertzUnit::Khz.multiple()).into())
 }
 
-pub fn cur_khz(cpu_id: u64) -> Result<Option<u64>> {
-  allow_missing_if_cpu_exists(cpu_id, try_cur_khz(cpu_id))
+pub fn cur(cpu_id: u64) -> Result<Option<Hertz>> {
+  allow_missing_if_cpu_exists(cpu_id, try_cur(cpu_id))
 }
 
-pub fn try_max_khz(cpu_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::cpufreq_max_khz(cpu_id))?;
-  debug!("cpufreq get_max_khz cpu{} {}", cpu_id, res);
-  Ok(res)
+pub fn try_max(cpu_id: u64) -> Result<Hertz> {
+  let khz = u64::read(&sysfs::cpufreq_max_khz(cpu_id))?;
+  debug!("cpufreq get_max_khz cpu{} {}", cpu_id, khz);
+  Ok((khz * HertzUnit::Khz.multiple()).into())
 }
 
-pub fn max_khz(cpu_id: u64) -> Result<Option<u64>> {
-  allow_missing_if_cpu_exists(cpu_id, try_max_khz(cpu_id))
+pub fn max(cpu_id: u64) -> Result<Option<Hertz>> {
+  allow_missing_if_cpu_exists(cpu_id, try_max(cpu_id))
 }
 
-pub fn try_max_khz_limit(cpu_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::cpufreq_max_khz_limit(cpu_id))?;
-  debug!("cpufreq get_max_khz_limit cpu{} {}", cpu_id, res);
-  Ok(res)
+pub fn try_max_limit(cpu_id: u64) -> Result<Hertz> {
+  let khz = u64::read(&sysfs::cpufreq_max_khz_limit(cpu_id))?;
+  debug!("cpufreq get_max_khz_limit cpu{} {}", cpu_id, khz);
+  Ok((khz * HertzUnit::Khz.multiple()).into())
 }
 
-pub fn max_khz_limit(cpu_id: u64) -> Result<Option<u64>> {
-  allow_missing_if_cpu_exists(cpu_id, try_max_khz_limit(cpu_id))
+pub fn max_limit(cpu_id: u64) -> Result<Option<Hertz>> {
+  allow_missing_if_cpu_exists(cpu_id, try_max_limit(cpu_id))
 }
 
-pub fn try_set_max_khz(cpu_id: u64, val: u64) -> Result<()> {
-  info!("cpufreq set_max_khz cpu{} {}", cpu_id, val);
-  val.write(&sysfs::cpufreq_max_khz(cpu_id))?;
+pub fn try_set_max<H: AsRef<Hertz>>(cpu_id: u64, val: H) -> Result<()> {
+  let khz = val.as_ref().khz() as u64;
+  info!("cpufreq set_max_khz cpu{} {}", cpu_id, khz);
+  khz.write(&sysfs::cpufreq_max_khz(cpu_id))?;
   Ok(())
 }
 
-pub fn set_max_khz(cpu_id: u64, val: u64) -> Result<Option<()>> {
-  allow_missing_if_cpu_exists(cpu_id, try_set_max_khz(cpu_id, val))
+pub fn set_max<H: AsRef<Hertz>>(cpu_id: u64, val: H) -> Result<Option<()>> {
+  allow_missing_if_cpu_exists(cpu_id, try_set_max(cpu_id, val))
 }
 
-pub fn try_min_khz(cpu_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::cpufreq_min_khz(cpu_id))?;
-  debug!("cpufreq get_min_khz cpu{} {}", cpu_id, res);
-  Ok(res)
+pub fn try_min(cpu_id: u64) -> Result<Hertz> {
+  let khz = u64::read(&sysfs::cpufreq_min_khz(cpu_id))?;
+  debug!("cpufreq get_min_khz cpu{} {}", cpu_id, khz);
+  Ok((khz * HertzUnit::Khz.multiple()).into())
 }
 
-pub fn min_khz(cpu_id: u64) -> Result<Option<u64>> {
-  allow_missing_if_cpu_exists(cpu_id, try_min_khz(cpu_id))
+pub fn min(cpu_id: u64) -> Result<Option<Hertz>> {
+  allow_missing_if_cpu_exists(cpu_id, try_min(cpu_id))
 }
 
-pub fn try_min_khz_limit(cpu_id: u64) -> Result<u64> {
-  let res = u64::read(&sysfs::cpufreq_min_khz_limit(cpu_id))?;
-  debug!("cpufreq get_min_khz_limit cpu{} {}", cpu_id, res);
-  Ok(res)
+pub fn try_min_limit(cpu_id: u64) -> Result<Hertz> {
+  let khz = u64::read(&sysfs::cpufreq_min_khz_limit(cpu_id))?;
+  debug!("cpufreq get_min_khz_limit cpu{} {}", cpu_id, khz);
+  Ok((khz * HertzUnit::Khz.multiple()).into())
 }
 
-pub fn min_khz_limit(cpu_id: u64) -> Result<Option<u64>> {
-  allow_missing_if_cpu_exists(cpu_id, try_min_khz_limit(cpu_id))
+pub fn min_limit(cpu_id: u64) -> Result<Option<Hertz>> {
+  allow_missing_if_cpu_exists(cpu_id, try_min_limit(cpu_id))
 }
 
-pub fn try_set_min_khz(cpu_id: u64, val: u64) -> Result<()> {
-  info!("cpufreq set_min_khz cpu{} {}", cpu_id, val);
-  val.write(&sysfs::cpufreq_min_khz(cpu_id))?;
+pub fn try_set_min<H: AsRef<Hertz>>(cpu_id: u64, val: H) -> Result<()> {
+  let khz = val.as_ref().khz() as u64;
+  info!("cpufreq set_min_khz cpu{} {}", cpu_id, khz);
+  khz.write(&sysfs::cpufreq_min_khz(cpu_id))?;
   Ok(())
 }
 
-pub fn set_min_khz(cpu_id: u64, val: u64) -> Result<Option<()>> {
-  allow_missing_if_cpu_exists(cpu_id, try_set_min_khz(cpu_id, val))
+pub fn set_min<H: AsRef<Hertz>>(cpu_id: u64, val: H) -> Result<Option<()>> {
+  allow_missing_if_cpu_exists(cpu_id, try_set_min(cpu_id, val))
 }

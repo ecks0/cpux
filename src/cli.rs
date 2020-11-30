@@ -4,7 +4,8 @@ use {
     cpufreq,
     i915,
     intel_pstate as pstate,
-    utils::{Hertz, HertzUnit, Indices, Toggles},
+    units::{Hertz, HertzUnit},
+    utils::{Indices, Toggles},
   },
   fern,
   log::{LevelFilter, error},
@@ -118,9 +119,9 @@ impl Cli {
       if ! cpu_online { cpu::try_set_online(cpu_id, true)?; }
       if let Some(ref cpu_on) = self.cpu_on { cpu_online = *cpu_on; }
       if let Some(ref freq_gov) = self.freq_gov { cpufreq::set_governor(cpu_id, freq_gov)?; }
-      if let Some(ref freq_max) = self.freq_max { cpufreq::set_max_khz(cpu_id, freq_max.value(HertzUnit::Khz) as u64)?; }
-      if let Some(ref freq_min) = self.freq_min { cpufreq::set_min_khz(cpu_id, freq_min.value(HertzUnit::Khz) as u64)?; }
-      if let Some(pstate_epb) = self.pstate_epb { pstate::set_epb(cpu_id, pstate_epb)?; }
+      if let Some(ref freq_max) = self.freq_max { cpufreq::set_max(cpu_id, freq_max)?; }
+      if let Some(ref freq_min) = self.freq_min { cpufreq::set_min(cpu_id, freq_min)?; }
+      if let Some(ref pstate_epb) = self.pstate_epb { pstate::set_epb(cpu_id, *pstate_epb)?; }
       if let Some(ref pstate_epp) = self.pstate_epp { pstate::set_epp(cpu_id, pstate_epp)?; }
       if ! cpu_online { cpu::set_online(cpu_id, false)?; }
     }
@@ -143,9 +144,9 @@ impl Cli {
     if ! self.has_control_args_i915() { return Ok(()); }
     let cards = if let Ok(Some(cards)) = i915::cards() { cards } else { return Ok(()) };
     for card_id in cards {
-      if let Some(ref i915_freq_boost) = self.i915_freq_boost { i915::set_boost_mhz(card_id, i915_freq_boost.value(HertzUnit::Mhz) as u64)?; }
-      if let Some(ref i915_freq_max) = self.i915_freq_max { i915::set_max_mhz(card_id, i915_freq_max.value(HertzUnit::Mhz) as u64)?; }
-      if let Some(ref i915_freq_min) = self.i915_freq_min { i915::set_min_mhz(card_id, i915_freq_min.value(HertzUnit::Mhz) as u64)?; }
+      if let Some(ref i915_freq_boost) = self.i915_freq_boost { i915::set_boost(card_id, i915_freq_boost)?; }
+      if let Some(ref i915_freq_max) = self.i915_freq_max { i915::set_max(card_id, i915_freq_max)?; }
+      if let Some(ref i915_freq_min) = self.i915_freq_min { i915::set_min(card_id, i915_freq_min)?; }
     }
     Ok(())
   }
@@ -178,11 +179,11 @@ impl Cli {
       tab.add_row(Row::new()
         .with_cell(format!("cpu{}", cpu_id))
         .with_cell(cpu::online(cpu_id)?.unwrap_or(true))
-        .with_cell(cpufreq::cur_khz(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::min_khz(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::max_khz(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::min_khz_limit(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::max_khz_limit(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string())));
+        .with_cell(cpufreq::cur(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::min(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::max(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::min_limit(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::max_limit(cpu_id)?.map(String::from).unwrap_or("n/a".to_string())));
     }
     let mut buf = tab.to_string();
     buf.push('\n');
@@ -239,13 +240,13 @@ impl Cli {
       tab.add_row(Row::new()
         .with_cell(format!("card{}", card_id))
         .with_cell(format!("i915"))
-        .with_cell(i915::actual_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::requested_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::min_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::max_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::boost_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::min_mhz_limit(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::max_mhz_limit(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string())));
+        .with_cell(i915::actual(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::requested(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::min(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::max(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::boost(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::min_limit(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::max_limit(card_id)?.map(String::from).unwrap_or("n/a".to_string())));
     }
     let mut buf = tab.to_string();
     buf.push('\n');

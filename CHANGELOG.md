@@ -1,3 +1,9 @@
+# v0.1.6
+
+- Rust changes:
+
+  - All frequency values are represented as `Hertz`.
+
 # v0.1.5
 
 - Command-line interface changes: 

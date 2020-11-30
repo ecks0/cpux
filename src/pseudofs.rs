@@ -1,6 +1,6 @@
 use {
   log::{debug, trace},
-  std::path::{Path, PathBuf}
+  std::path::{Path, PathBuf},
 };
 
 #[derive(thiserror::Error, Debug)]
