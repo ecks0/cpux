@@ -47,7 +47,7 @@ pub fn cards() -> Result<Option<Vec<u64>>> {
 pub fn try_actual(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_act_mhz(card_id))?;
   debug!("i915 get_actual_mhz card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn actual(card_id: u64) -> Result<Option<Hertz>> {
@@ -57,7 +57,7 @@ pub fn actual(card_id: u64) -> Result<Option<Hertz>> {
 pub fn try_boost(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_boost_mhz(card_id))?;
   debug!("i915 get_boost_mhz card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn boost(card_id: u64) -> Result<Option<Hertz>> {
@@ -78,7 +78,7 @@ pub fn set_boost<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<Option<()>> {
 pub fn try_max(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_max_mhz(card_id))?;
   debug!("i915 get_max_mhz card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn max(card_id: u64) -> Result<Option<Hertz>> {
@@ -88,7 +88,7 @@ pub fn max(card_id: u64) -> Result<Option<Hertz>> {
 pub fn try_max_limit(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_rp0_mhz(card_id))?;
   debug!("i915 get_max_mhz_limit card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn max_limit(card_id: u64) -> Result<Option<Hertz>> {
@@ -109,7 +109,7 @@ pub fn set_max<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<Option<()>> {
 pub fn try_min(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_min_mhz(card_id))?;
   debug!("i915 get_min_mhz card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn min(card_id: u64) -> Result<Option<Hertz>> {
@@ -119,7 +119,7 @@ pub fn min(card_id: u64) -> Result<Option<Hertz>> {
 pub fn try_min_limit(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_rpn_mhz(card_id))?;
   debug!("i915 get_min_mhz_limit card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn min_limit(card_id: u64) -> Result<Option<Hertz>> {
@@ -140,7 +140,7 @@ pub fn set_min<H: AsRef<Hertz>>(card_id: u64, val: H) -> Result<Option<()>> {
 pub fn try_requested(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_cur_mhz(card_id))?;
   debug!("i915 get_requested_mhz card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn requested(card_id: u64) -> Result<Option<Hertz>> {
@@ -150,7 +150,7 @@ pub fn requested(card_id: u64) -> Result<Option<Hertz>> {
 pub fn try_optimum_limit(card_id: u64) -> Result<Hertz> {
   let mhz = u64::read(&sysfs::i915_rp1_mhz(card_id))?;
   debug!("i915 get_optimum_mhz_limit card{} {}", card_id, mhz);
-  Ok((mhz * HertzUnit::Mhz.multiple()).into())
+  Ok(Hertz::from_mhz(mhz as f64))
 }
 
 pub fn optimum_limit(card_id: u64) -> Result<Option<Hertz>> {

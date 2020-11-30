@@ -65,7 +65,7 @@ pub fn governors(cpu_id: u64) -> Result<Option<Vec<String>>> {
 pub fn try_cur(cpu_id: u64) -> Result<Hertz> {
   let khz = u64::read(&sysfs::cpufreq_cur_khz(cpu_id))?;
   debug!("cpufreq get_cur_khz cpu{} {}", cpu_id, khz);
-  Ok((khz * HertzUnit::Khz.multiple()).into())
+  Ok(Hertz::from_khz(khz as f64))
 }
 
 pub fn cur(cpu_id: u64) -> Result<Option<Hertz>> {
@@ -75,7 +75,7 @@ pub fn cur(cpu_id: u64) -> Result<Option<Hertz>> {
 pub fn try_max(cpu_id: u64) -> Result<Hertz> {
   let khz = u64::read(&sysfs::cpufreq_max_khz(cpu_id))?;
   debug!("cpufreq get_max_khz cpu{} {}", cpu_id, khz);
-  Ok((khz * HertzUnit::Khz.multiple()).into())
+  Ok(Hertz::from_khz(khz as f64))
 }
 
 pub fn max(cpu_id: u64) -> Result<Option<Hertz>> {
@@ -85,7 +85,7 @@ pub fn max(cpu_id: u64) -> Result<Option<Hertz>> {
 pub fn try_max_limit(cpu_id: u64) -> Result<Hertz> {
   let khz = u64::read(&sysfs::cpufreq_max_khz_limit(cpu_id))?;
   debug!("cpufreq get_max_khz_limit cpu{} {}", cpu_id, khz);
-  Ok((khz * HertzUnit::Khz.multiple()).into())
+  Ok(Hertz::from_khz(khz as f64))
 }
 
 pub fn max_limit(cpu_id: u64) -> Result<Option<Hertz>> {
@@ -106,7 +106,7 @@ pub fn set_max<H: AsRef<Hertz>>(cpu_id: u64, val: H) -> Result<Option<()>> {
 pub fn try_min(cpu_id: u64) -> Result<Hertz> {
   let khz = u64::read(&sysfs::cpufreq_min_khz(cpu_id))?;
   debug!("cpufreq get_min_khz cpu{} {}", cpu_id, khz);
-  Ok((khz * HertzUnit::Khz.multiple()).into())
+  Ok(Hertz::from_khz(khz as f64))
 }
 
 pub fn min(cpu_id: u64) -> Result<Option<Hertz>> {
@@ -116,7 +116,7 @@ pub fn min(cpu_id: u64) -> Result<Option<Hertz>> {
 pub fn try_min_limit(cpu_id: u64) -> Result<Hertz> {
   let khz = u64::read(&sysfs::cpufreq_min_khz_limit(cpu_id))?;
   debug!("cpufreq get_min_khz_limit cpu{} {}", cpu_id, khz);
-  Ok((khz * HertzUnit::Khz.multiple()).into())
+  Ok(Hertz::from_khz(khz as f64))
 }
 
 pub fn min_limit(cpu_id: u64) -> Result<Option<Hertz>> {
