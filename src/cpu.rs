@@ -6,10 +6,14 @@ use {
       read_str,
       write_bool,
     },
-    sysfs::{cpu, cpu_present, cpu_online},
+    sysfs,
+    utils::Indices,
   },
-  log::{debug, info, trace},
-  std::path::PathBuf,
+  log::{debug, info},
+  std::{
+    path::PathBuf,
+    str::FromStr,
+  },
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -37,19 +41,18 @@ fn allow_missing_if_cpu_exists<T>(cpu_id: u64, result: Result<T>) -> Result<Opti
 }
 
 pub fn exists(cpu_id: u64) -> bool {
-  cpu(cpu_id).is_dir()
+  sysfs::cpu(cpu_id).is_dir()
 }
 
-pub fn ids() -> Result<Vec<u64>> {
-  let path = cpu_present();
+pub fn cpus() -> Result<Vec<u64>> {
+  let path = sysfs::cpu_present();
   let val = read_str(&path)?;
-  debug!(r#"cpu get_ids "{}""#, val);
-  let val = crate::cli::parse_indices(val.trim_end()).ok_or(Error::Parse(path, val))?;
-  Ok(val)
+  debug!(r#"cpu get_cpus "{}""#, val);
+  Ok(Indices::from_str(val.trim_end()).map_err(|e| Error::Parse(path, val))?.to_vec())
 }
 
 pub fn try_online(cpu_id: u64) -> Result<bool> {
-  let res = read_bool(&cpu_online(cpu_id))?;
+  let res = read_bool(&sysfs::cpu_online(cpu_id))?;
   debug!("cpu get_online cpu{} {}", cpu_id, res);
   Ok(res)
 }
@@ -60,7 +63,7 @@ pub fn online(cpu_id: u64) -> Result<Option<bool>> {
 
 pub fn try_set_online(cpu_id: u64, val: bool) -> Result<()> {
   info!("cpu set_online cpu{} {}", cpu_id, val);
-  write_bool(&cpu_online(cpu_id), val)?;
+  write_bool(&sysfs::cpu_online(cpu_id), val)?;
   Ok(())
 }
 

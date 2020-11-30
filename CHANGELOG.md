@@ -1,3 +1,25 @@
+# v0.1.4
+
+- Command-line interface changes:
+
+  - Add `--i915` arguments for Intel GPUs:
+  
+    - `--i915` to display current values (displayed by default if detected)
+    - `--i915-freq-min` to set minimum frequency
+    - `--i915-freq-max` to set maximum frequency
+    - `--i915-freq-boost` to set boost frequency
+
+  - Rename `WAIT` argument to `REFRESH`.
+  - Cleanup help text.
+  - More consistent argument error handling.
+
+- Rust changes:
+
+  - Switch from `clap` to `structopt`.
+  - Create types from utility functions in old cli and move to `utils` module.
+  - Add `drm` helper module.
+  - Add `i915` public module.
+
 # v0.1.3
 
 - Re-add bounds check on `WAIT` argument.
