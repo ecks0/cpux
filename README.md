@@ -22,8 +22,6 @@ View and set CPU and related parameters on Linux.
 
 - Display current values for many data points.
 
-- Straight-forward Rust library.
-
 ## Help
 
 ```

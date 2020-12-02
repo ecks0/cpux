@@ -34,18 +34,14 @@ pub struct IndicesIter<'a>(Box<dyn Iterator<Item=&'a u64> + 'a>);
 impl<'a> Iterator for IndicesIter<'a> {
   type Item = &'a u64;
 
-  fn next(&mut self) -> Option<Self::Item> {
-    self.0.next()
-  }
+  fn next(&mut self) -> Option<Self::Item> { self.0.next() }
 }
 
 impl IntoIterator for Indices {
   type Item = u64;
   type IntoIter = std::vec::IntoIter<Self::Item>;
 
-  fn into_iter(self) -> Self::IntoIter {
-    self.0.into_iter()
-  }
+  fn into_iter(self) -> Self::IntoIter { self.0.into_iter() }
 }
 
 impl std::str::FromStr for Indices {
@@ -86,9 +82,7 @@ pub struct Toggles(Vec<Option<bool>>);
 
 impl Toggles {
 
-  pub fn iter(&self) -> TogglesIter {
-    TogglesIter(Box::new(self.0.iter()))
-  }
+  pub fn iter(&self) -> TogglesIter { TogglesIter(Box::new(self.0.iter())) }
 }
 
 pub struct TogglesIter<'a>(Box<dyn Iterator<Item=&'a Option<bool>> + 'a>);
@@ -96,18 +90,14 @@ pub struct TogglesIter<'a>(Box<dyn Iterator<Item=&'a Option<bool>> + 'a>);
 impl<'a> Iterator for TogglesIter<'a> {
   type Item = &'a Option<bool>;
 
-  fn next(&mut self) -> Option<Self::Item> {
-    self.0.next()
-  }
+  fn next(&mut self) -> Option<Self::Item> { self.0.next() }
 }
 
 impl IntoIterator for Toggles {
   type Item = Option<bool>;
   type IntoIter = std::vec::IntoIter<Self::Item>;
 
-  fn into_iter(self) -> Self::IntoIter {
-    self.0.into_iter()
-  }
+  fn into_iter(self) -> Self::IntoIter { self.0.into_iter() }
 }
 
 impl std::str::FromStr for Toggles {
