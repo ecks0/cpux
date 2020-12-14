@@ -1,3 +1,26 @@
+# v0.1.6
+
+- Most argument values can be set using environment variables:
+
+  - `CPUX_CPUS   == -c/--cpus`
+  - `CPUX_CPU_ON == -o/--cpu-on`
+  - `CPUX_CPU_ON_EACH == -O/--cpu-on-each`
+  - `CPUX_FREQ_GOV == -g/--freq-gov`
+  - `CPUX_FREQ_MAX == -x/--freq-max`
+  - `CPUX_FREQ_MIN == -n/--freq-min`
+  - `CPUX_I915_FREQ_BOOST == --i915-freq-boost`
+  - `CPUX_I915_FREQ_MAX   == --i915-freq-max`
+  - `CPUX_I915_FREQ_BOOST == --i915-freq-min`
+  - `CPUX_PSTATE_EPB == --pstate-epb`
+  - `CPUX_PSTATE_EPP == --pstate-epp`
+
+- Rust changes:
+
+  - All frequency values are represented as `Hertz`.
+  - Original io errors are printed on the trace log level.
+
+- The license has changed to GPLv3.
+
 # v0.1.5
 
 - Command-line interface changes: 

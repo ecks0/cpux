@@ -4,7 +4,8 @@ use {
     cpufreq,
     i915,
     intel_pstate as pstate,
-    utils::{Hertz, HertzUnit, Indices, Toggles},
+    units::{Hertz, HertzUnit},
+    utils::{Indices, Toggles},
   },
   fern,
   log::{LevelFilter, error},
@@ -28,55 +29,55 @@ type Result<T> = std::result::Result<T, Error>;
 #[structopt(about="View and set CPU and related parameters.")]
 pub struct Cli {
 
-  #[structopt(short, long, value_name="indices", help="Target CPUs, default all, e.g. 0,1,2-5,9,12-15")]
+  #[structopt(short, long, value_name="indices", env="CPUX_CPUS", help="Target CPUs, default all, e.g. 0,1,2-5,9,12-15")]
   cpus: Option<Indices>,
 
   #[structopt(long, takes_value=false, help="Prints CPU online and frequency summary, default")]
   cpu: bool,
 
-  #[structopt(short="o", long, value_name="bool", help="CPU online status, true or false (per --cpus)")]
+  #[structopt(short="o", long, value_name="bool", env="CPUX_CPU_ON", help="CPU online status, true or false (per --cpus)")]
   cpu_on: Option<bool>,
 
-  #[structopt(short="O", long, value_name="list", help="CPU online status, e.g. 10-1 ⇒ 0=on 1=off 2=skip 3=on")]
+  #[structopt(short="O", long, value_name="list", env="CPUX_CPU_ON_EACH", help="CPU online status, e.g. 10-1 ⇒ 0=on 1=off 2=skip 3=on")]
   cpu_on_each: Option<Toggles>,
 
   #[structopt(long, takes_value=false, help="Prints CPU frequency governor summary, default if detected")]
   freq: bool,
 
-  #[structopt(short="g", long, value_name="gov", help="Frequency governor (per --cpus)")]
+  #[structopt(short="g", long, value_name="gov", env="CPUX_FREQ_GOV", help="Frequency governor (per --cpus)")]
   freq_gov: Option<String>,
 
-  #[structopt(short="x", long, value_name="hz", help="Max frequency, e.g. 4100mhz, 4.1ghz (per --cpus)")]
+  #[structopt(short="x", long, value_name="hz", env="CPUX_FREQ_MAX", help="Max frequency, e.g. 4100mhz, 4.1ghz (per --cpus)")]
   freq_max: Option<Hertz>,
 
-  #[structopt(short="n", long, value_name="hz", help="Min frequency, e.g. 800mhz, 0.8ghz (per --cpus)")]
+  #[structopt(short="n", long, value_name="hz", env="CPUX_FREQ_MIN", help="Min frequency, e.g. 800mhz, 0.8ghz (per --cpus)")]
   freq_min: Option<Hertz>,
 
   #[structopt(long, takes_value=false, help="Prints Intel GPU driver summary, default if detected")]
   i915: bool,
 
-  #[structopt(long, value_name="hz", help="Intel GPU boost frequency, e.g. 1100mhz, 1.1ghz")]
+  #[structopt(long, value_name="hz", env="CPUX_I915_FREQ_BOOST", help="Intel GPU boost frequency, e.g. 1100mhz, 1.1ghz")]
   i915_freq_boost: Option<Hertz>,
 
-  #[structopt(long, value_name="hz", help="Intel GPU maximum frequency, e.g. 900mhz, 0.9ghz")]
+  #[structopt(long, value_name="hz", env="CPUX_I915_FREQ_MAX", help="Intel GPU maximum frequency, e.g. 900mhz, 0.9ghz")]
   i915_freq_max: Option<Hertz>,
 
-  #[structopt(long, value_name="hz", help="Intel GPU minimum frequency, e.g. 350mhz, 0.35ghz")]
+  #[structopt(long, value_name="hz", env="CPUX_I915_FREQ_MIN", help="Intel GPU minimum frequency, e.g. 350mhz, 0.35ghz")]
   i915_freq_min: Option<Hertz>,
 
-  #[structopt(long, value_name="level", help="Log level, default warn, e.g. error|warn|info|debug|trace")]
+  #[structopt(long, value_name="level", env="CPUX_LOG_LEVEL", help="Log level, default warn, e.g. error|warn|info|debug|trace")]
   log_level: Option<LevelFilter>,
 
   #[structopt(long, takes_value=false, help="Prints Intel pstate driver summary, default if detected")]
   pstate: bool,
   
-  #[structopt(long, value_name="0-15", help="Intel pstate energy/performance bias hint (per --cpus)")]
+  #[structopt(long, value_name="0-15", env="CPUX_PSTATE_EPB", help="Intel pstate energy/performance bias hint (per --cpus)")]
   pstate_epb: Option<u64>,
 
-  #[structopt(long, value_name="pref", help="Intel pstate energy/performance preference (per --cpus)")]
+  #[structopt(long, value_name="pref", env="CPUX_PSTATE_EPP", help="Intel pstate energy/performance preference (per --cpus)")]
   pstate_epp: Option<String>,
 
-  #[structopt(short, long, takes_value=false, help="Do not print the default summaries")]
+  #[structopt(short, long, takes_value=false, env="CPUX_QUIET", help="Do not print the default summaries")]
   quiet: Option<bool>,
 
   #[structopt(name = "REFRESH", help="Refresh summaries every REFRESH seconds")]
@@ -118,9 +119,9 @@ impl Cli {
       if ! cpu_online { cpu::try_set_online(cpu_id, true)?; }
       if let Some(ref cpu_on) = self.cpu_on { cpu_online = *cpu_on; }
       if let Some(ref freq_gov) = self.freq_gov { cpufreq::set_governor(cpu_id, freq_gov)?; }
-      if let Some(ref freq_max) = self.freq_max { cpufreq::set_max_khz(cpu_id, freq_max.value(HertzUnit::Khz) as u64)?; }
-      if let Some(ref freq_min) = self.freq_min { cpufreq::set_min_khz(cpu_id, freq_min.value(HertzUnit::Khz) as u64)?; }
-      if let Some(pstate_epb) = self.pstate_epb { pstate::set_epb(cpu_id, pstate_epb)?; }
+      if let Some(ref freq_max) = self.freq_max { cpufreq::set_max(cpu_id, freq_max)?; }
+      if let Some(ref freq_min) = self.freq_min { cpufreq::set_min(cpu_id, freq_min)?; }
+      if let Some(ref pstate_epb) = self.pstate_epb { pstate::set_epb(cpu_id, *pstate_epb)?; }
       if let Some(ref pstate_epp) = self.pstate_epp { pstate::set_epp(cpu_id, pstate_epp)?; }
       if ! cpu_online { cpu::set_online(cpu_id, false)?; }
     }
@@ -143,9 +144,9 @@ impl Cli {
     if ! self.has_control_args_i915() { return Ok(()); }
     let cards = if let Ok(Some(cards)) = i915::cards() { cards } else { return Ok(()) };
     for card_id in cards {
-      if let Some(ref i915_freq_boost) = self.i915_freq_boost { i915::set_boost_mhz(card_id, i915_freq_boost.value(HertzUnit::Mhz) as u64)?; }
-      if let Some(ref i915_freq_max) = self.i915_freq_max { i915::set_max_mhz(card_id, i915_freq_max.value(HertzUnit::Mhz) as u64)?; }
-      if let Some(ref i915_freq_min) = self.i915_freq_min { i915::set_min_mhz(card_id, i915_freq_min.value(HertzUnit::Mhz) as u64)?; }
+      if let Some(ref i915_freq_boost) = self.i915_freq_boost { i915::set_boost(card_id, i915_freq_boost)?; }
+      if let Some(ref i915_freq_max) = self.i915_freq_max { i915::set_max(card_id, i915_freq_max)?; }
+      if let Some(ref i915_freq_min) = self.i915_freq_min { i915::set_min(card_id, i915_freq_min)?; }
     }
     Ok(())
   }
@@ -178,11 +179,11 @@ impl Cli {
       tab.add_row(Row::new()
         .with_cell(format!("cpu{}", cpu_id))
         .with_cell(cpu::online(cpu_id)?.unwrap_or(true))
-        .with_cell(cpufreq::cur_khz(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::min_khz(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::max_khz(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::min_khz_limit(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(cpufreq::max_khz_limit(cpu_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string())));
+        .with_cell(cpufreq::cur(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::min(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::max(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::min_limit(cpu_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(cpufreq::max_limit(cpu_id)?.map(String::from).unwrap_or("n/a".to_string())));
     }
     let mut buf = tab.to_string();
     buf.push('\n');
@@ -239,13 +240,13 @@ impl Cli {
       tab.add_row(Row::new()
         .with_cell(format!("card{}", card_id))
         .with_cell(format!("i915"))
-        .with_cell(i915::actual_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::requested_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::min_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::max_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::boost_mhz(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::min_mhz_limit(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string()))
-        .with_cell(i915::max_mhz_limit(card_id)?.map(|v| Hertz::format(v*1000)).unwrap_or("n/a".to_string())));
+        .with_cell(i915::actual(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::requested(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::min(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::max(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::boost(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::min_limit(card_id)?.map(String::from).unwrap_or("n/a".to_string()))
+        .with_cell(i915::max_limit(card_id)?.map(String::from).unwrap_or("n/a".to_string())));
     }
     let mut buf = tab.to_string();
     buf.push('\n');

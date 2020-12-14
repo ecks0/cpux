@@ -12,7 +12,7 @@ View and set CPU and related parameters on Linux.
       - frequency governor
       - min frequency
       - max frquency
-  - Intel GPU driver:
+  - Intel i915 GPU driver:
       - min frequency
       - max frquency
       - boost frquency
@@ -20,15 +20,15 @@ View and set CPU and related parameters on Linux.
       - energy performance bias hint
       - energy performance preference
 
-- Display current values for many data points.
+- Display current values for several data points.
 
-- Straight-forward Rust library.
+- Set arguments using environment variables.
 
 ## Help
 
 ```
 $ cpux --help
-cpux 0.1.5
+cpux 0.1.6
 View and set CPU and related parameters.
 
 USAGE:
@@ -99,6 +99,14 @@ cpux -c 5,6,9-11 -o true --pstate-epb 3 --i915-freq-min 300mhz --i915-freq-max 0
 # - intel energy/performance bias hint = 3
 # - intel gpu min frequency = 300 MHz
 # - intel gpu max frequency = 800 MHz
+
+export CPUX_CPUS=2,4,6,8
+export CPUX_CPU_ON=true
+cpux
+#
+# - target cpus 2, 4, 6, 8
+# - cpu online = true
+
 ```
 
 ## Output

@@ -1,6 +1,6 @@
 use {
   log::{debug, trace},
-  std::path::{Path, PathBuf}
+  std::path::{Path, PathBuf},
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -33,8 +33,8 @@ fn handle_io_error<T>(path: &Path, result: std::io::Result<T>) -> Result<T> {
         std::io::ErrorKind::PermissionDenied => Err(Error::NoPermission(path.to_path_buf(), err)),
         std::io::ErrorKind::Other => 
           match err.raw_os_error() {
-            Some(6)  |  // ENXIO "No such device or address",
-            Some(16)    // EBUSY "Resource busy"
+            Some(6)  | // ENXIO "No such device or address",
+            Some(16)   // EBUSY "Resource busy"
               => Err(Error::NotFound(path.to_path_buf(), err)),
             _ => Err(Error::Io(path.to_path_buf(), err))
           },
@@ -48,15 +48,15 @@ pub(crate) fn allow_missing_files<T>(result: Result<T>) -> Result<Option<T>> {
   match result {
     Ok(val) => Ok(Some(val)),
     Err(err) =>
-      match err {
-        Error::NotFound(path, _) => {
-          debug!("pseudofs NotFound {}", path.display());
+      match &err {
+        Error::NotFound(path, err_io) => {
+          debug!("pseudofs NotFound {} {}", path.display(), err_io);
           Ok(None)
         },
-        Error::NoPermission(ref path, _) => {
+        Error::NoPermission(ref path, err_io) => {
           if path.is_file() || path.is_dir() { Err(err) }
           else {
-            debug!("pseudofs NoPermission {}", path.display());
+            debug!("pseudofs NoPermission {} {}", path.display(), err_io);
             Ok(None)
           }
         }
